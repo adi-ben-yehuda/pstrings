@@ -25,12 +25,12 @@ replaceChar:
         movq    %rsp, %rbp      # for correct debugging
 
         movq    %rdi, %rax      # because we return the pointer to the first pstring
-        movq    8(%rdi), %rdi   # look only at the text
+        movq    1(%rdi), %rdi   # look only at the text
         movq    $endText, %r10
 
 LOOP:
-        movq    (%rdx), %r11
-        cmpq    %r11, (%rdi)  # check if the letter in the text equals to the old char.
+        mov    (%rdx), %r11
+        cmp    %r11, (%rdi)  # check if the letter in the text equals to the old char.
         jne     CONTINUE
 
         movq    (%rsi), %r11

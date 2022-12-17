@@ -45,15 +45,15 @@ run_main:
         movq    $option, %rsi   # define that the value from scanf will be saved in option
         call    scanf           # get the option of the user
 
-        subq    $528, %rsp      # move the %rsp so that there is space to save the four values
+        subq    $512, %rsp      # move the %rsp so that there is space to save the four values
         movq    $text1, -255(%rbp) # save the first text in the stack
-        movq    $n1, -263(%rbp)   # save the first length in the stack
-        movq    $text2, -518(%rbp) # save the second text in the stack
-        movq    $n2, -526(%rbp)   # save the second length in the stack
+        movq    $n1, -256(%rbp)   # save the first length in the stack
+        movq    $text2, -511(%rbp) # save the second text in the stack
+        movq    $n2, -512(%rbp)   # save the second length in the stack
 
         movl	$option, %edi
-        movq    -263(%rbp), %rsi
-        movq    -526(%rbp), %rdx
+        movq    -256(%rbp), %rsi
+        movq    -512(%rbp), %rdx
         call    run_func
 
         movq    %rbp, %rsp
