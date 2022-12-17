@@ -51,7 +51,7 @@ run_main:
         movq    $text2, -511(%rbp) # save the second text in the stack
         movq    $n2, -512(%rbp)   # save the second length in the stack
 
-        movl	$option, %edi
+        movl	(option), %edi
         movq    -256(%rbp), %rsi
         movq    -512(%rbp), %rdx
         call    run_func

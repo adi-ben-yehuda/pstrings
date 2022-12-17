@@ -29,9 +29,12 @@ replaceChar:
         movq    $endText, %r10
 
 LOOP:
-        mov    (%rdx), %r11
-        cmp    %r11, (%rdi)  # check if the letter in the text equals to the old char.
-        jne     CONTINUE
+        movq    $0, %r11
+        movq    (%rdx), %r11
+        movq    $0, %r10
+        movq    (%rdi), %r10
+        cmp     %r11, %r10  # check if the letter in the text equals to the old char.
+        jne     CONTINUE    # if the letter in the text doesn't equal to the old char.
 
         movq    (%rsi), %r11
         movq    %r11, (%rdi)
