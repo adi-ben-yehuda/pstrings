@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "pstring.h"
 
-int extern run_main();
+void run_main();
 
 int main() {
 
