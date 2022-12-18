@@ -5,11 +5,15 @@
 format_length:  .string    "first pstring length: %d, second pstring length: %d\n"
 format_get_char:    .string     "%c"
 format_replace: .string    "old char: %c, new char: %c, first string: %s, second string: %s\n"
+format_scanf_number:   .string     "%d"
 
 .data
 newChar:    .byte 0
 oldChar:    .byte 0
 trash:      .byte 0
+i:          .double 0
+j:          .double 0
+
 
 .text
 .globl run_func
@@ -105,7 +109,30 @@ REPLACE:
 
         jmp END
 COPY:
-    jmp END
+        push    %r13        # because it is callee
+        push    %r14        # because it is callee
+        movq    %rsi, %r13  # save the first pstring
+        movq    %rdx, %r14  # save the second pstring
+
+        movq    $format_scanf_number, %rdi   # load format for scanf for numbers
+        movq    $0, %rax        # clear AL (zero FP args in XMM registers)
+        movq    $i, %rsi        # define that the value from scanf will be saved in i
+        call    scanf           # get the second length
+
+        movq    $format_scanf_number, %rdi   # load format for scanf for numbers
+        movq    $0, %rax        # clear AL (zero FP args in XMM registers)
+        movq    $j, %rsi        # define that the value from scanf will be saved in j
+        call    scanf           # get the second length
+
+        movq    %r13, %rdi      # the address of the first pstring
+        movq    %r14, %rsi      # the address of the second pstring
+        movb    (i), %dl        # move the i to be in smaller register.
+        movb    (j), %cl        # move the j to be in smaller register.
+        call    pstrijcpy
+
+        popq    %r13    # because it is a callee
+        popq    %r14    # because it is a callee
+        jmp END
 
 SWAP:
     jmp END
