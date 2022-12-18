@@ -23,27 +23,23 @@ replaceChar:
 
         movq    %rdi, %rax      # because we return the pointer to the first pstring
         movq    $0, %r11
-        movb    (%rdi), %r11b
-        movq    1(%rdi), %rdi   # look only at the text
-        movq    $0, %r8
+        movb    (%rdi), %r11b   # save the length of the string
+        movq    $0, %r8         # Counting how many letters we have run so far.
 
 LOOP:
-        movb    %dil, %r10b     # insert a letter to the register.
-        cmp     %dl, %r10b      # check if the letter in the text equals to the old char.
+        addq    $1, %rdi   # look at the next letter
+        movb    (%rdx), %r10b       # save the old char
+        cmpb    (%rdi), %r10b      # check if the letter in the text equals to the old char.
         jne     CONTINUE        # if the letter in the text doesn't equal to the old char.
-
         movb    %sil, %dil      # switch the letter in the pstring with the new char
-        incq    %r8
-        movq    %r8, %r9
-        cmp     %r11, %r9
-        je      END
-        jmp     LOOP
 
 CONTINUE:
-      #  movb    1(%dil), %dil   # look at the next letter.
-
-
+        incq    %r8             # count++
+        movq    %r8, %r9
+        cmp     %r11, %r9       # check if count == length
+        je      END             # we ran on all the letter in the text.
         jmp     LOOP
+
 END:
         movq    %rbp, %rsp
         popq    %rbp
