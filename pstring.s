@@ -1,8 +1,5 @@
 .section .rodata
 
-.data
-endText:     .string  "\0"
-
 .text
 .globl pstrlen
 .type pstrlen, @function
@@ -11,7 +8,7 @@ pstrlen:
         push    %rbp            # Save the old frame pointer
         movq    %rsp, %rbp      # for correct debugging
 
-        movq    (%rdi), %rax    # saved the length of the first pstring in %rax.
+        movb    (%rdi), %al    # saved the length of the first pstring.
 
         movq    %rbp, %rsp
         popq    %rbp
@@ -25,25 +22,27 @@ replaceChar:
         movq    %rsp, %rbp      # for correct debugging
 
         movq    %rdi, %rax      # because we return the pointer to the first pstring
+        movq    $0, %r11
+        movb    (%rdi), %r11b
         movq    1(%rdi), %rdi   # look only at the text
-        movq    $endText, %r10
+        movq    $0, %r8
 
 LOOP:
-        movq    $0, %r11
-        movq    (%rdx), %r11
-        movq    $0, %r10
-        movq    (%rdi), %r10
-        cmp     %r11, %r10  # check if the letter in the text equals to the old char.
-        jne     CONTINUE    # if the letter in the text doesn't equal to the old char.
+        movb    %dil, %r10b     # insert a letter to the register.
+        cmp     %dl, %r10b      # check if the letter in the text equals to the old char.
+        jne     CONTINUE        # if the letter in the text doesn't equal to the old char.
 
-        movq    (%rsi), %r11
-        movq    %r11, (%rdi)
+        movb    %sil, %dil      # switch the letter in the pstring with the new char
+        incq    %r8
+        movq    %r8, %r9
+        cmp     %r11, %r9
+        je      END
         jmp     LOOP
 
 CONTINUE:
-        movq    1(%rdi), %rdi   # look at the next letter.
-        cmpq    (%rdi), %r10    # check if the letter is \0
-        je      END
+      #  movb    1(%dil), %dil   # look at the next letter.
+
+
         jmp     LOOP
 END:
         movq    %rbp, %rsp
