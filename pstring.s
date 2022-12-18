@@ -17,7 +17,7 @@ pstrlen:
 .globl replaceChar
 .type replaceChar, @function
 replaceChar:
-        # %rdi = pointer to first pstring, %rsi = new char, %rdx = old char.
+        # %rdi = pointer to first pstring, %sil = new char, %dl = old char.
         push    %rbp            # Save the old frame pointer
         movq    %rsp, %rbp      # for correct debugging
 
@@ -28,10 +28,10 @@ replaceChar:
 
 LOOP:
         addq    $1, %rdi   # look at the next letter
-        movb    (%rdx), %r10b       # save the old char
+        movb    %dl, %r10b       # save the old char
         cmpb    (%rdi), %r10b      # check if the letter in the text equals to the old char.
         jne     CONTINUE        # if the letter in the text doesn't equal to the old char.
-        movb    %sil, %dil      # switch the letter in the pstring with the new char
+        movb    %sil, (%rdi)      # switch the letter in the pstring with the new char
 
 CONTINUE:
         incq    %r8             # count++

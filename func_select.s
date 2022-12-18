@@ -81,18 +81,20 @@ REPLACE:
         call    scanf               # get the new char. Saved in %rsi
 
         movq    $0, %rsi
-        movb    (newChar), %sil     # define that the value from scanf will be saved in n1
+        movb    (newChar), %sil
         movq    $0, %rdx
-        movb    (oldChar), %dl      # %rdx contains the old char
+        movb    (oldChar), %dl
         movq    %r13, %rdi      # saved the pointer to the first pstring.
         call    replaceChar     # %rax contains the pstring after the switch.
         movq    %rax, %r13      # contains the first pstring after the switch.
 
-     #   movq    $oldChar, %rdx      # %rdx contains the old char
-     #   movq    $newChar, %rsi       # define that the value from scanf will be saved in n1
-     #   movq    %rbp, %rdi       # saved the pointer to the first pstring in %rdi.
-      #  call    replaceChar     # %rax contains the pstring after the switch.
-      #  movq    %rax, %rbp       # %r9 contains the first pstring after the switch.
+        movq    $0, %rsi
+        movb    (newChar), %sil
+        movq    $0, %rdx
+        movb    (oldChar), %dl
+        movq    %r14, %rdi       # saved the pointer to the first pstring in %rdi.
+        call    replaceChar     # %rax contains the pstring after the switch.
+        movq    %rax, %r14       # contains the first pstring after the switch.
 
         movq	$format_replace, %rdi	# load format for printf
         movq    (oldChar), %rsi      # %rdx contains the old char
