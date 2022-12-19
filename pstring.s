@@ -62,11 +62,11 @@ pstrijcpy:
         movq    $0, %r11
         movb    %dl, %r10b      # move the i
         movb    %cl, %r11b      # move the j
-        cmpb    %r10b, %r11b      # compare between i and j
-        jl      INVALID          # jump if i>j
+        cmpb    %r10b, %r11b    # compare between i and j
+        jl      INVALID         # jump if i>j
         movq    $0, %r9
-        cmpb    %r10b, %r9b       # compare between i and 0
-        jg      INVALID          # jump if i<0
+        cmpb    %r10b, %r9b     # compare between i and 0
+        jg      INVALID         # jump if i<0
         movq    $0, %r9
         movb    (%rdi), %r9b    # save the length of the first string
         movb    %cl, %r10b      # save the j
@@ -111,7 +111,38 @@ END_CPY:
 .globl swapCase
 .type swapCase, @function
 swapCase:
+        # %rdi = pointer to first pstring
+        push    %rbp            # Save the old frame pointer
+        movq    %rsp, %rbp      # for correct debugging
+        movq    %rdi, %rax      # because we return the pointer to the pstring
+        movq    $0, %r8         # Counting how many letters we have run so far.
+        movq    $0, %r11
+        movb    (%rdi), %r11b   # save the length of the string
+        addq    $1, %rdi        # look at the first letter in the pstring
 
+LOOP_SWP:
+        movb    (%r8), %r9b         # save the counter
+        movb    (%r11), %r10b       # save the length
+        cmpb    %r9b, %r10b         # compare between counter and length
+        jle     END_SWP             # jump if counter>=length
+
+        movb    (%rdi), %r9b        # save the letter
+        cmp     $96, %r9b           # compare between 96 and the letter
+        jl      LOWER
+        ## that is an upper case
+
+LOWER:
+
+        addq    $32, %r9
+        movb    %r9b, (%rdi)
+
+        incb    %r8b            # counter++
+        addq    $1, %rdi        # look at the next letter in the first pstring
+
+END_SWP:
+        movq    %rbp, %rsp
+        popq    %rbp
+        ret
 
 
 .globl pstrijcmp

@@ -25,6 +25,11 @@ run_func:
         push    %rbp            # Save the old frame pointer
         movq    %rsp, %rbp      # for correct debugging
 
+        push    %r13        # because it is callee
+        push    %r14        # because it is callee
+        movq    %rsi, %r13  # save the first pstring
+        movq    %rdx, %r14  # save the second pstring
+
         cmpl    $31, %edi     # check if option = 31
         je      LENGTH
         cmpl    $32, %edi     # check if option = 32
@@ -40,16 +45,11 @@ run_func:
         jmp END
 
 LENGTH:
-        push    %r12        # because it is callee
-        push    %r13        # because it is callee
-        movq    %rsi, %r12  # save the first pstring
-        movq    %rdx, %r13  # save the second pstring
-
-        movq    %r12, %rdi  # contains the pointer to the first pstring
+        movq    %r13, %rdi  # contains the pointer to the first pstring
         call    pstrlen     # return the length of the first pstring. Saved in %rax
         movq    %rax, %rsi  # Save the length of the first pstring in %rsi.
 
-        movq    %r13, %rdi  # contains the pointer to the second pstring
+        movq    %r14, %rdi  # contains the pointer to the second pstring
         call    pstrlen     # return the length of the second pstring. Saved in %rax
         movq    %rax, %rdx  # Save the length of the second pstring in %rdx.
 
@@ -57,17 +57,9 @@ LENGTH:
         movq	$0, %rax
         call	printf
 
-        popq    %r13    # because it is a callee
-        popq    %r12    # because it is a callee
-
         jmp END
 
 REPLACE:
-        push    %r13        # because it is callee
-        push    %r14        # because it is callee
-        movq    %rsi, %r13  # save the first pstring
-        movq    %rdx, %r14  # save the second pstring
-
         movq    $format_get_char, %rdi   # load format for scanf for char.
         movq    $trash, %rsi    # define that the value from scanf will be saved in trash.
         movq    $0, %rax        # clear AL (zero FP args in XMM registers).
@@ -114,16 +106,9 @@ REPLACE:
         movq	$0, %rax
         call	printf
 
-        popq    %r14    # because it is a callee
-        popq    %r13    # because it is a callee
-
         jmp END
-COPY:
-        push    %r13        # because it is callee
-        push    %r14        # because it is callee
-        movq    %rsi, %r13  # save the first pstring
-        movq    %rdx, %r14  # save the second pstring
 
+COPY:
         movq    $format_scanf_number, %rdi   # load format for scanf for numbers
         movq    $0, %rax        # clear AL (zero FP args in XMM registers)
         movq    $i, %rsi        # define that the value from scanf will be saved in i
@@ -158,20 +143,23 @@ COPY:
         movq	$0, %rax
         call	printf
 
-        popq    %r14    # because it is a callee
-        popq    %r13    # because it is a callee
         jmp END
 
 SWAP:
-    jmp END
+        movq    %r13, %rdi      # contains the address of the first pstring
+        call    swapCase
+        movq    %rax, %r8
+        jmp END
 
 COMPARE:
-    jmp END
+        jmp END
 
 
 END:
 
 
+        popq    %r14    # because it is a callee
+        popq    %r13    # because it is a callee
 
         movq    %rbp, %rsp
         popq    %rbp
