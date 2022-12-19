@@ -128,15 +128,26 @@ LOOP_SWP:
         jle     END_SWP             # jump if counter>=length
 
         movb    (%rdi), %r9b        # save the letter
+        cmp     $65, %r9b           # compare between 65 and the letter
+        jl      CONTINUE_SWP        # jump if 65>letter, because it's not a capital letter.
+        ## letter >= 65
+        cmp     $90, %r9b           # compare between 90 and the letter
+        jle     CAPITAL             # jump if 90>=letter
+        ## letter > 90
         cmp     $96, %r9b           # compare between 96 and the letter
-        jl      LOWER
-        ## that is an upper case
-        addq    $-32, %r9
-        movb    %r9b, (%rdi)
+        jle     CONTINUE_SWP        # jump if 96>=letter, because it's not a letter.
+        ## letter >= 97
+        cmp     $122, %r9b          # compare between 122 and the letter
+        jg     CONTINUE_SWP         # jump if 122<letter, because it's not a letter.
+        ## the letter is a lower case letter
+        addq    $-32, %r9           # change the lower case letter to be a capital letter.
+        movb    %r9b, (%rdi)        # save the letter after the change in the string.
         jmp     CONTINUE_SWP
-LOWER:
-        addq    $32, %r9
-        movb    %r9b, (%rdi)
+
+CAPITAL:
+        addq    $32, %r9        # change the capital letter to be a lower case letter.
+        movb    %r9b, (%rdi)    # save the letter after the change in the string.
+
 CONTINUE_SWP:
         incb    %r8b            # counter++
         addq    $1, %rdi        # look at the next letter in the first pstring
@@ -146,7 +157,6 @@ END_SWP:
         movq    %rbp, %rsp
         popq    %rbp
         ret
-
 
 .globl pstrijcmp
 .type pstrijcmp, @function

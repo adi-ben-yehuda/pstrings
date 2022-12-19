@@ -16,7 +16,6 @@ trash:      .byte 0
 i:          .double 0
 j:          .double 0
 
-
 .text
 .globl run_func
 .type run_func, @function
