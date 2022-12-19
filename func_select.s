@@ -7,7 +7,7 @@ format_get_char:        .string     "%c"
 format_replace:         .string     "old char: %c, new char: %c, first string: %s, second string: %s\n"
 format_scanf_number:    .string     "%d"
 format_cpy:             .string     "length: %d, string: %s\n"
-
+format_swp:             .string     "length: %d, string: %s\n"
 
 .data
 newChar:    .byte 0
@@ -148,7 +148,30 @@ COPY:
 SWAP:
         movq    %r13, %rdi      # contains the address of the first pstring
         call    swapCase
-        movq    %rax, %r8
+        movq    %rax, %r8       # save the pstring after the swap
+
+        movq	$format_swp, %rdi   # load format for printf
+        movq    $0, %rsi
+        movb    (%r8), %sil    # saved the length of the pstring.
+        movq    %r8, %r9       # contains the address of the pstring
+        addq    $1, %r9        # because we want the string of the pstring
+        movq    %r9, %rdx      # save the address of the pstring
+        movq	$0, %rax
+        call	printf
+
+        movq    %r14, %rdi      # contains the address of the first pstring
+        call    swapCase
+        movq    %rax, %r8       # save the pstring after the swap
+
+        movq	$format_swp, %rdi   # load format for printf
+        movq    $0, %rsi
+        movb    (%r8), %sil    # saved the length of the pstring.
+        movq    %r8, %r9       # contains the address of the pstring
+        addq    $1, %r9        # because we want the string of the pstring
+        movq    %r9, %rdx      # save the address of the pstring
+        movq	$0, %rax
+        call	printf
+
         jmp END
 
 COMPARE:

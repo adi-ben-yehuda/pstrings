@@ -121,8 +121,9 @@ swapCase:
         addq    $1, %rdi        # look at the first letter in the pstring
 
 LOOP_SWP:
-        movb    (%r8), %r9b         # save the counter
-        movb    (%r11), %r10b       # save the length
+        movb    %r8b, %r9b          # save the counter
+        movq    $0, %r10
+        movb    %r11b, %r10b        # save the length of the string
         cmpb    %r9b, %r10b         # compare between counter and length
         jle     END_SWP             # jump if counter>=length
 
@@ -130,14 +131,16 @@ LOOP_SWP:
         cmp     $96, %r9b           # compare between 96 and the letter
         jl      LOWER
         ## that is an upper case
-
+        addq    $-32, %r9
+        movb    %r9b, (%rdi)
+        jmp     CONTINUE_SWP
 LOWER:
-
         addq    $32, %r9
         movb    %r9b, (%rdi)
-
+CONTINUE_SWP:
         incb    %r8b            # counter++
         addq    $1, %rdi        # look at the next letter in the first pstring
+        jmp     LOOP_SWP
 
 END_SWP:
         movq    %rbp, %rsp
