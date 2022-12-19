@@ -1,8 +1,7 @@
-.section .rodata
-
+# 211769757 Adi Ben Yehuda
 
 .section .rodata # Read only data section
-format_invalid_cpy:  .string    "invalid input!\n"
+format_invalid:  .string    "invalid input!\n"
 
 .text
 .globl pstrlen
@@ -12,7 +11,7 @@ pstrlen:
         push    %rbp            # Save the old frame pointer
         movq    %rsp, %rbp      # for correct debugging
 
-        movb    (%rdi), %al    # saved the length of the first pstring.
+        movb    (%rdi), %al     # saved the length of the first pstring.
 
         movq    %rbp, %rsp
         popq    %rbp
@@ -63,24 +62,25 @@ pstrijcpy:
         movb    %dl, %r10b      # move the i
         movb    %cl, %r11b      # move the j
         cmpb    %r10b, %r11b    # compare between i and j
-        jl      INVALID         # jump if i>j
+        jl      INVALID_CPY     # jump if i>j
         movq    $0, %r9
         cmpb    %r10b, %r9b     # compare between i and 0
-        jg      INVALID         # jump if i<0
+        jg      INVALID_CPY     # jump if i<0
         movq    $0, %r9
         movb    (%rdi), %r9b    # save the length of the first string
         movb    %cl, %r10b      # save the j
         cmpb    %r9b, %r10b     # compare between length of the first pstring and j
-        jge     INVALID         # jump if j >= length
+        jge     INVALID_CPY     # jump if j >= length
         movq    $0, %r9
         movb    (%rsi), %r9b    # save the length of the second string
         movb    %cl, %r10b      # save the j
         cmpb    %r9b, %r10b     # compare between length of the second pstring and j
-        jge     INVALID         # jump if j >= length
+        jge     INVALID_CPY     # jump if j >= length
 
         movq    $0, %r8         # Counting how many letters we have run so far.
         addq    $1, %rdi        # look at the next letter in the first pstring
         addq    $1, %rsi        # look at the next letter in the second pstring
+
 LOOP_CPY:
         movb    %r8b, %r9b      # save the counter
         cmpb    %dl, %r9b       # compare between i and counter
@@ -98,10 +98,16 @@ COUNTINUE_CPY:
         addq    $1, %rsi        # look at the next letter in the second pstring
         jmp     LOOP_CPY
 
-INVALID:
-        movq	$format_invalid_cpy, %rdi	# load format for printf
+INVALID_CPY:
+        push    %rbx        # because it is a callee
+        push    $0          # we need the stack addresses to be multiples of 16 for printf
+        movq    %rax, %rbx  # save the first pstring
+        movq	$format_invalid, %rdi	# load format for printf
         movq	$0, %rax
         call	printf      # print error message
+        popq    %r8         # pop out the 0
+        movq    %rbx, %rax  # save the first pstring
+        popq    %rbx        # because it is a callee
 
 END_CPY:
         movq    %rbp, %rsp
@@ -161,3 +167,75 @@ END_SWP:
 .globl pstrijcmp
 .type pstrijcmp, @function
 pstrijcmp:
+        # %rdi = pointer to first pstring, %rsi = pointer to second pstring, %dl = i, %cl = j.
+        push    %rbp            # Save the old frame pointer
+        movq    %rsp, %rbp      # for correct debugging
+
+        # check validation
+        movq    $0, %r10
+        movq    $0, %r11
+        movb    %dl, %r10b      # move the i
+        movb    %cl, %r11b      # move the j
+        cmpb    %r10b, %r11b    # compare between i and j
+        jl      INVALID_CMP     # jump if i>j
+        movq    $0, %r9
+        cmpb    %r10b, %r9b     # compare between i and 0
+        jg      INVALID_CMP     # jump if i<0
+        movq    $0, %r9
+        movb    (%rdi), %r9b    # save the length of the first string
+        movb    %cl, %r10b      # save the j
+        cmpb    %r9b, %r10b     # compare between length of the first pstring and j
+        jge     INVALID_CMP     # jump if j >= length
+        movq    $0, %r9
+        movb    (%rsi), %r9b    # save the length of the second string
+        movb    %cl, %r10b      # save the j
+        cmpb    %r9b, %r10b     # compare between length of the second pstring and j
+        jge     INVALID_CMP     # jump if j >= length
+
+        movq    $0, %r8         # Counting how many letters we have run so far.
+        addq    $1, %rdi        # look at the next letter in the first pstring
+        addq    $1, %rsi        # look at the next letter in the second pstring
+LOOP_CMP:
+        movb    %r8b, %r9b      # save the counter
+        cmpb    %cl, %r9b       # compare between j and counter
+        jg      EQUAL           # jump if counter>j
+        movb    %r8b, %r9b      # save the counter
+        cmpb    %dl, %r9b       # compare between i and counter
+        jl      COUNTINUE_CMP   # jump if counter<i
+        ## counter >= i
+        movb    (%rdi), %r10b   # save the letter of the first pstring
+        movb    (%rsi), %r11b   # save the letter of the second pstring
+        cmpb    %r10b, %r11b    # compare between letter of the first pstring and letter of the second pstring.
+        jg      SECOND_BIGGER   # jump if second > letter
+        cmpb    %r10b, %r11b    # compare between letter of the first pstring and letter of the second pstring.
+        jl      FIRST_BIGGER   # jump if second < letter
+
+COUNTINUE_CMP:
+        incb    %r8b            # counter++
+        addq    $1, %rdi        # look at the next letter in the first pstring
+        addq    $1, %rsi        # look at the next letter in the second pstring
+        jmp     LOOP_CMP
+
+INVALID_CMP:
+        movq	$format_invalid, %rdi	# load format for printf
+        movq	$0, %rax
+        call	printf          # print error message
+        movq    $-2, %rax
+        jmp     END_CMP
+
+EQUAL:
+        movq    $0, %rax        # the first pstring and the second pstring is the same.
+        jmp     END_CMP
+
+SECOND_BIGGER:
+        movq    $-1, %rax       # the second pstring is bigger than the first pstring.
+        jmp     END_CMP
+
+FIRST_BIGGER:
+        movq    $1, %rax        # the first pstring is bigger than the second pstring.
+        jmp     END_CMP
+
+END_CMP:
+        movq    %rbp, %rsp
+        popq    %rbp
+        ret

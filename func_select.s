@@ -1,5 +1,4 @@
-.section .rodata
-
+# 211769757 Adi Ben Yehuda
 
 .section .rodata # Read only data section
 format_length:          .string     "first pstring length: %d, second pstring length: %d\n"
@@ -8,6 +7,8 @@ format_replace:         .string     "old char: %c, new char: %c, first string: %
 format_scanf_number:    .string     "%d"
 format_cpy:             .string     "length: %d, string: %s\n"
 format_swp:             .string     "length: %d, string: %s\n"
+format_cmp:             .string     "compare result: %d\n"
+format_error:           .string     "invalid option!\n"
 
 .data
 newChar:    .byte 0
@@ -41,7 +42,7 @@ run_func:
         je      SWAP
         cmpl    $37, %edi     # check if option = 37
         je      COMPARE
-        jmp END
+        jmp     ERROR
 
 LENGTH:
         movq    %r13, %rdi  # contains the pointer to the first pstring
@@ -75,9 +76,9 @@ REPLACE:
         call    scanf           # get the space from the previous scanf
 
         movq    $format_get_char, %rdi   # load format for scanf for char
-        movq    $newChar, %rsi      # define that the value from scanf will be saved in n1
-        movq    $0, %rax            # clear AL (zero FP args in XMM registers)
-        call    scanf               # get the new char.
+        movq    $newChar, %rsi  # define that the value from scanf will be saved in n1
+        movq    $0, %rax        # clear AL (zero FP args in XMM registers)
+        call    scanf           # get the new char.
 
         movq    $0, %rsi
         movb    (newChar), %sil # move the new char to be in smaller register.
@@ -151,10 +152,10 @@ SWAP:
 
         movq	$format_swp, %rdi   # load format for printf
         movq    $0, %rsi
-        movb    (%r8), %sil    # saved the length of the pstring.
-        movq    %r8, %r9       # contains the address of the pstring
-        addq    $1, %r9        # because we want the string of the pstring
-        movq    %r9, %rdx      # save the address of the pstring
+        movb    (%r8), %sil     # saved the length of the pstring.
+        movq    %r8, %r9        # contains the address of the pstring
+        addq    $1, %r9         # because we want the string of the pstring
+        movq    %r9, %rdx       # save the address of the pstring
         movq	$0, %rax
         call	printf
 
@@ -164,26 +165,49 @@ SWAP:
 
         movq	$format_swp, %rdi   # load format for printf
         movq    $0, %rsi
-        movb    (%r8), %sil    # saved the length of the pstring.
-        movq    %r8, %r9       # contains the address of the pstring
-        addq    $1, %r9        # because we want the string of the pstring
-        movq    %r9, %rdx      # save the address of the pstring
+        movb    (%r8), %sil     # saved the length of the pstring.
+        movq    %r8, %r9        # contains the address of the pstring
+        addq    $1, %r9         # because we want the string of the pstring
+        movq    %r9, %rdx       # save the address of the pstring
         movq	$0, %rax
         call	printf
 
         jmp END
 
 COMPARE:
+        movq    $format_scanf_number, %rdi   # load format for scanf for numbers
+        movq    $0, %rax        # clear AL (zero FP args in XMM registers)
+        movq    $i, %rsi        # define that the value from scanf will be saved in i
+        call    scanf           # get the second length
+
+        movq    $format_scanf_number, %rdi   # load format for scanf for numbers
+        movq    $0, %rax        # clear AL (zero FP args in XMM registers)
+        movq    $j, %rsi        # define that the value from scanf will be saved in j
+        call    scanf           # get the second length
+
+        movq    %r13, %rdi      # the address of the first pstring
+        movq    %r14, %rsi      # the address of the second pstring
+        movb    (i), %dl        # move the i to be in smaller register.
+        movb    (j), %cl        # move the j to be in smaller register.
+        call    pstrijcmp       # %rax contains the first pstring after the copy
+        movq    %rax, %r8       # contains the value
+
+        movq	$format_cmp, %rdi   # load format for printf
+        movq    %r8, %rsi       # send the value
+        movq	$0, %rax
+        call	printf
+
         jmp END
 
+ERROR:
+        movq	$format_error, %rdi   # load format for printf
+        movq	$0, %rax
+        call	printf
 
 END:
-
-
         popq    %r14    # because it is a callee
         popq    %r13    # because it is a callee
 
         movq    %rbp, %rsp
         popq    %rbp
         ret
-
