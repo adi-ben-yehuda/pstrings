@@ -30,21 +30,21 @@ replaceChar:
         movb    (%rdi), %r11b   # save the length of the string
         movq    $0, %r8         # Counting how many letters we have run so far.
 
-LOOP:
+LOOP_RPLC:
         addq    $1, %rdi        # look at the next letter
         movb    %dl, %r10b      # save the old char
         cmpb    (%rdi), %r10b   # check if the letter in the text equals to the old char.
-        jne     CONTINUE        # jump if the letter in the text doesn't equal to the old char.
+        jne     CONTINUE_RPLC   # jump if the letter in the text doesn't equal to the old char.
         movb    %sil, (%rdi)    # switch the letter in the pstring with the new char
 
-CONTINUE:
+CONTINUE_RPLC:
         incq    %r8             # count++
         movq    %r8, %r9        # move the count
         cmp     %r11, %r9       # check if count == length
-        je      END             # jump if we run on all the letters in the text.
-        jmp     LOOP
+        je      END_RPLC        # jump if we run on all the letters in the text.
+        jmp     LOOP_RPLC
 
-END:
+END_RPLC:
         movq    %rbp, %rsp
         popq    %rbp
         ret
@@ -78,26 +78,32 @@ pstrijcpy:
         cmpb    %r9b, %r10b     # compare between length of the second pstring and j
         jge     INVALID         # jump if j >= length
 
-
-        movb    $0, %r8b         # Counting how many letters we have run so far.
-
-
+        movq    $0, %r8         # Counting how many letters we have run so far.
+        addq    $1, %rdi        # look at the next letter in the first pstring
+        addq    $1, %rsi        # look at the next letter in the second pstring
 LOOP_CPY:
-        movb    %r8b, %r9b
-        cmpb    %dl, %r9b       # compare between i and count
-        jge     LOOP_CPY         # jump if count>=i
+        movb    %r8b, %r9b      # save the counter
+        cmpb    %dl, %r9b       # compare between i and counter
+        jl      COUNTINUE_CPY   # jump if counter<i
+        movb    %r8b, %r9b      # save the counter
+        cmpb    %cl, %r9b       # compare between j and counter
+        jg      END_CPY         # jump if counter>j
+        ## that is, i<=conter<=j
+        movb    (%rsi), %r10b   # save the letter of the second pstring
+        movb    %r10b, (%rdi)   # switch the letter in the first pstring with the letter of the second pstring.
 
-
-        jmp     CONTINUE_CPY
-
-
+COUNTINUE_CPY:
+        incb    %r8b            # counter++
+        addq    $1, %rdi        # look at the next letter in the first pstring
+        addq    $1, %rsi        # look at the next letter in the second pstring
+        jmp     LOOP_CPY
 
 INVALID:
         movq	$format_invalid_cpy, %rdi	# load format for printf
         movq	$0, %rax
-        call	printf
+        call	printf      # print error message
 
-CONTINUE_CPY:
+END_CPY:
         movq    %rbp, %rsp
         popq    %rbp
         ret

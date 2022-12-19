@@ -2,10 +2,12 @@
 
 
 .section .rodata # Read only data section
-format_length:  .string    "first pstring length: %d, second pstring length: %d\n"
-format_get_char:    .string     "%c"
-format_replace: .string    "old char: %c, new char: %c, first string: %s, second string: %s\n"
-format_scanf_number:   .string     "%d"
+format_length:          .string     "first pstring length: %d, second pstring length: %d\n"
+format_get_char:        .string     "%c"
+format_replace:         .string     "old char: %c, new char: %c, first string: %s, second string: %s\n"
+format_scanf_number:    .string     "%d"
+format_cpy:             .string     "length: %d, string: %s\n"
+
 
 .data
 newChar:    .byte 0
@@ -38,17 +40,25 @@ run_func:
         jmp END
 
 LENGTH:
+        push    %r12        # because it is callee
+        push    %r13        # because it is callee
+        movq    %rsi, %r12  # save the first pstring
+        movq    %rdx, %r13  # save the second pstring
+
         movq    %r12, %rdi  # contains the pointer to the first pstring
         call    pstrlen     # return the length of the first pstring. Saved in %rax
-        movq    %rax, %rsi   # Save the length of the first pstring in %rsi.
+        movq    %rax, %rsi  # Save the length of the first pstring in %rsi.
 
         movq    %r13, %rdi  # contains the pointer to the second pstring
         call    pstrlen     # return the length of the second pstring. Saved in %rax
-        movq    %rax, %rdx   # Save the length of the second pstring in %rdx.
+        movq    %rax, %rdx  # Save the length of the second pstring in %rdx.
 
         movq	$format_length, %rdi	# load format for printf
         movq	$0, %rax
         call	printf
+
+        popq    %r13    # because it is a callee
+        popq    %r12    # because it is a callee
 
         jmp END
 
@@ -104,8 +114,8 @@ REPLACE:
         movq	$0, %rax
         call	printf
 
-        popq    %r13    # because it is a callee
         popq    %r14    # because it is a callee
+        popq    %r13    # because it is a callee
 
         jmp END
 COPY:
@@ -128,10 +138,28 @@ COPY:
         movq    %r14, %rsi      # the address of the second pstring
         movb    (i), %dl        # move the i to be in smaller register.
         movb    (j), %cl        # move the j to be in smaller register.
-        call    pstrijcpy
+        call    pstrijcpy       # %rax contains the first pstring after the copy
+        movq    %rax, %r8       # contains the first pstring after the copy
 
-        popq    %r13    # because it is a callee
+        movq	$format_cpy, %rdi   # load format for printf
+        movq    $0, %rsi
+        movb    (%r8), %sil     # saved the length of the first pstring.
+        addq    $1, %r8         # because we want the string of the pstring
+        movq    %r8, %rdx       # save the address of the first pstring
+        movq	$0, %rax
+        call	printf
+
+        movq	$format_cpy, %rdi   # load format for printf
+        movq    $0, %rsi
+        movb    (%r14), %sil    # saved the length of the second pstring.
+        movq    %r14, %r8       # contains the address of the second pstring
+        addq    $1, %r8         # because we want the string of the pstring
+        movq    %r8, %rdx       # save the address of the second pstring
+        movq	$0, %rax
+        call	printf
+
         popq    %r14    # because it is a callee
+        popq    %r13    # because it is a callee
         jmp END
 
 SWAP:
