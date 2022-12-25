@@ -81,17 +81,17 @@ REPLACE:
         call    scanf           # get the new char.
 
         movq    $0, %rsi
-        movb    (newChar), %sil # move the new char to be in smaller register.
+        movb    (oldChar), %sil # move the new char to be in smaller register.
         movq    $0, %rdx
-        movb    (oldChar), %dl  # move the old char to be in smaller register.
+        movb    (newChar), %dl  # move the old char to be in smaller register.
         movq    %r13, %rdi      # saved the pointer to the first pstring.
         call    replaceChar     # %rax contains the pstring after the switch.
         movq    %rax, %r13      # contains the first pstring after the switch.
 
         movq    $0, %rsi
-        movb    (newChar), %sil # move the new char to be in smaller register.
+        movb    (oldChar), %sil # move the new char to be in smaller register.
         movq    $0, %rdx
-        movb    (oldChar), %dl  # move the old char to be in smaller register.
+        movb    (newChar), %dl  # move the old char to be in smaller register.
         movq    %r14, %rdi      # saved the pointer to the second pstring in %rdi.
         call    replaceChar     # %rax contains the pstring after the switch.
         movq    %rax, %r14      # contains the second pstring after the switch.

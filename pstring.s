@@ -20,21 +20,24 @@ pstrlen:
 .globl replaceChar
 .type replaceChar, @function
 replaceChar:
-        # %rdi = pointer to first pstring, %sil = new char, %dl = old char.
+        # %rdi = pointer to first pstring, %sil = old char, %dl = new char.
         push    %rbp            # Save the old frame pointer
         movq    %rsp, %rbp      # for correct debugging
 
         movq    %rdi, %rax      # because we return the pointer to the first pstring
         movq    $0, %r11
         movb    (%rdi), %r11b   # save the length of the string
+        cmp     $0, %r11        # check if 0 == length
+        je      END_RPLC        # jump if the length is 0.
+
         movq    $0, %r8         # Counting how many letters we have run so far.
 
 LOOP_RPLC:
         addq    $1, %rdi        # look at the next letter
-        movb    %dl, %r10b      # save the old char
+        movb    %sil, %r10b      # save the old char
         cmpb    (%rdi), %r10b   # check if the letter in the text equals to the old char.
         jne     CONTINUE_RPLC   # jump if the letter in the text doesn't equal to the old char.
-        movb    %sil, (%rdi)    # switch the letter in the pstring with the new char
+        movb    %dl, (%rdi)    # switch the letter in the pstring with the new char
 
 CONTINUE_RPLC:
         incq    %r8             # count++
