@@ -21,3 +21,19 @@ After the comparison, print the comparison result.
 
 In any case, after performing the operation, the program must be finished in an orderly manner.
 If func_run received a different number, print the following to the user: invalid option!
+
+## Installation
+Before installing this project, you need to install on your computer:
+* Git
+
+After it, run the following commands in the terminal:
+
+```
+git clone https://github.com/adi-ben-yehuda/Game.git
+make clean
+make
+./a.out
+```
+
+## Contact
+Created by @adi-ben-yehuda - feel free to contact me!
