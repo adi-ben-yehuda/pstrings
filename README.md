@@ -1,4 +1,4 @@
-# computer_systems_ex_3
+# Functions on pstrings
 
 ## Introduction
 This Arkanoid game contains four levels. The player will win the game if he breaks all the blocks in each level and he will lose if all the balls fall.
@@ -29,7 +29,7 @@ Before installing this project, you need to install on your computer:
 After it, run the following commands in the terminal:
 
 ```
-git clone https://github.com/adi-ben-yehuda/Game.git
+git clone https://github.com/adi-ben-yehuda/pstrings.git
 make clean
 make
 ./a.out
