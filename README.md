@@ -1,7 +1,7 @@
 # Functions on pstrings
 
 ## Introduction
-This Arkanoid game contains four levels. The player will win the game if he breaks all the blocks in each level and he will lose if all the balls fall.
+In this program, the user enters two pstrings containing length and text and its option. According to the option, the actions will occur, and the result will be printed on the console.
 
 ## Table of contents
 * [General Information](#general-information)
