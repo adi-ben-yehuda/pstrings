@@ -1,4 +1,4 @@
-# 211769757 Adi Ben Yehuda
+# Adi Ben Yehuda
 
 .section .rodata # Read only data section
 format_length:          .string     "first pstring length: %d, second pstring length: %d\n"

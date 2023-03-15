@@ -1,4 +1,4 @@
-# 211769757 Adi Ben Yehuda
+# Adi Ben Yehuda
 
 .section .rodata # Read only data section
 format_invalid:  .string    "invalid input!\n"
