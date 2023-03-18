@@ -26,6 +26,7 @@ The options are:
 <img width="104" alt="image" src="https://user-images.githubusercontent.com/75027826/225345904-7bcbfc8c-a6c0-4e19-8bc9-a0ce08ac7fbe.png">
 
 * 37 - Two numbers must be received from the user - the first number will be the start index and the second number will be the end index. Next, call the pstrijcmp function, where j is the end index, i index is the start, pstr1 is the pointer to the first pstring, and pstr2 is the pointer to the second pstring. After the comparison, print the comparison result.
+
 <img width="80" alt="image" src="https://user-images.githubusercontent.com/75027826/225346711-b0bb12a3-4909-4c37-9287-da4727bbb9fa.png"> <img width="82" alt="image" src="https://user-images.githubusercontent.com/75027826/225346156-8b813584-4812-4522-a161-0da1124bf026.png">
 
 In any case, after performing the operation, the program must be finished in an orderly manner.
